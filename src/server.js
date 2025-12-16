@@ -3,6 +3,8 @@ const session = require('express-session');
 const path = require('path');
 const database = require('./utils/database');
 const { checkAuth } = require('./middleware/auth');
+const User = require('./models/User');
+
 
 require('dotenv').config();
 
@@ -123,9 +125,27 @@ app.use((err, req, res, next) => {
 // Initialize database and start server
 const PORT = process.env.PORT || 3000;
 
+async function ensureAdminUser() {
+  try {
+    const existingAdmin = await User.findByEmail('admin@florist.com');
+    if (!existingAdmin) {
+      await User.create({
+        username: 'admin',
+        email: 'admin@florist.com',
+        password: 'admin123',
+        is_admin: 1
+      });
+      console.log('Default admin user created');
+    }
+  } catch (err) {
+    console.error('Admin creation failed:', err);
+  }
+}
+
 async function startServer() {
   try {
     await database.connect();
+    await ensureAdminUser();
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });
