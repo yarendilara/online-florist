@@ -145,7 +145,7 @@ async function ensureAdminUser() {
 async function startServer() {
   try {
     await database.connect();
-    await ensureAdminUser();
+    setTimeout(ensureAdminUser, 500);
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });
