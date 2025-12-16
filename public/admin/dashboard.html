@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Online Florist</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+<body>
+  <nav>
+    <div class="nav-container">
+      <div class="logo">🌸 FloraShop Admin</div>
+      <ul class="nav-links">
+        <li><a href="/">Back to Store</a></li>
+      </ul>
+      <div class="auth-links">
+        <span id="userGreeting" class="text-muted"></span>
+        <button id="logoutBtn">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1 style="margin-bottom: 2rem;">Admin Dashboard</h1>
+
+    <div class="admin-nav">
+      <a href="#dashboard" class="admin-nav-link active" data-section="dashboard">Dashboard</a>
+      <a href="#products" class="admin-nav-link" data-section="products">Products</a>
+      <a href="#categories" class="admin-nav-link" data-section="categories">Categories</a>
+      <a href="#orders" class="admin-nav-link" data-section="orders">Orders</a>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboard" class="admin-container active">
+      <h2>Dashboard Overview</h2>
+      <div class="dashboard-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="totalProducts">0</div>
+          <div class="stat-label">Total Products</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="totalOrders">0</div>
+          <div class="stat-label">Total Orders</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="totalRevenue">$0.00</div>
+          <div class="stat-label">Total Revenue</div>
+        </div>
+      </div>
+
+      <h3 style="margin-top: 2rem;">Recent Orders</h3>
+      <div class="table-responsive">
+        <table id="recentOrdersTable">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Products Section -->
+    <div id="products" class="admin-container">
+      <h2>Product Management</h2>
+      
+      <div class="form-section">
+        <h3>Add New Product</h3>
+        <div id="alertContainer"></div>
+        <form id="productForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="productName">Product Name *</label>
+              <input type="text" id="productName" required>
+            </div>
+            <div class="form-group">
+              <label for="productPrice">Price *</label>
+              <input type="number" id="productPrice" step="0.01" required>
+            </div>
+            <div class="form-group">
+              <label for="productStock">Stock Quantity *</label>
+              <input type="number" id="productStock" min="0" required>
+            </div>
+            <div class="form-group">
+              <label for="productCategory">Category *</label>
+              <select id="productCategory" required>
+                <option value="">Select Category</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="productDescription">Description</label>
+            <textarea id="productDescription"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="productImage">Product Image</label>
+            <input type="file" id="productImage" accept="image/*">
+          </div>
+          <button type="submit" class="btn">Add Product</button>
+          <button type="button" id="cancelEditBtn" class="btn btn-secondary" style="display: none;">Cancel Edit</button>
+        </form>
+      </div>
+
+      <h3>Products List</h3>
+      <div class="table-responsive">
+        <table id="productsTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Category</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Categories Section -->
+    <div id="categories" class="admin-container">
+      <h2>Category Management</h2>
+
+      <div class="form-section">
+        <h3>Add New Category</h3>
+        <div id="categoryAlertContainer"></div>
+        <form id="categoryForm">
+          <div class="form-group">
+            <label for="categoryName">Category Name *</label>
+            <input type="text" id="categoryName" required>
+          </div>
+          <div class="form-group">
+            <label for="categoryDescription">Description</label>
+            <textarea id="categoryDescription"></textarea>
+          </div>
+          <button type="submit" class="btn">Add Category</button>
+          <button type="button" id="cancelCategoryEditBtn" class="btn btn-secondary" style="display: none;">Cancel Edit</button>
+        </form>
+      </div>
+
+      <h3>Categories List</h3>
+      <div class="table-responsive">
+        <table id="categoriesTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Orders Section -->
+    <div id="orders" class="admin-container">
+      <h2>Order Management</h2>
+      
+      <div class="table-responsive">
+        <table id="ordersTable">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div id="orderDetailsModal" style="display: none; background: white; padding: 2rem; border-radius: 8px; margin-top: 2rem;">
+        <button onclick="closeOrderDetails()" class="btn btn-secondary">Close</button>
+        <h3 style="margin: 1rem 0;">Order Details</h3>
+        <div id="orderDetailsContent"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2024 FloraShop. All rights reserved. | Admin Panel</p>
+  </footer>
+
+  <script src="/js/app.js"></script>
+  <script src="/admin/js/admin.js"></script>
+</body>
+</html>

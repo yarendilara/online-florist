@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop - Online Florist</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav>
+    <div class="nav-container">
+      <div class="logo">🌸 FloraShop</div>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/shop">Shop</a></li>
+        <li><a href="/cart">Cart</a></li>
+      </ul>
+      <div class="auth-links">
+        <span id="userGreeting" class="text-muted"></span>
+        <a href="/login" id="loginLink">Login</a>
+        <a href="/register" id="registerLink">Register</a>
+        <button id="logoutBtn" style="display: none;">Logout</button>
+        <a href="/admin" id="adminLink" style="display: none; background-color: #27ae60;">Admin</a>
+        <a href="/orders" id="ordersLink" style="display: none;">My Orders</a>
+      </div>
+    </div>
+  </nav>
+
+  <header>
+    <h1>Shop Flowers</h1>
+    <p>Browse our complete collection of beautiful flowers</p>
+  </header>
+
+  <div class="container">
+    <div class="flex-between mb-3">
+      <div>
+        <label for="categoryFilter">Filter by Category:</label>
+        <select id="categoryFilter" style="width: 250px;">
+          <option value="">All Categories</option>
+        </select>
+      </div>
+      <div>
+        <label for="searchInput">Search:</label>
+        <input type="text" id="searchInput" placeholder="Search flowers..." style="width: 250px;">
+      </div>
+    </div>
+
+    <div class="products-grid" id="productsContainer">
+      <div class="loading">
+        <div class="spinner"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2024 FloraShop. All rights reserved. | Online Flower Shop</p>
+  </footer>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/shop.js"></script>
+</body>
+</html>

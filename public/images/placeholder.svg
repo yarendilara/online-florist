@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f8d7da"/>
+      <stop offset="100%" stop-color="#ffe8a1"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#g)"/>
+  <g fill="none" stroke="#b56576" stroke-width="6" opacity="0.8">
+    <circle cx="200" cy="320" r="120"/>
+    <circle cx="300" cy="250" r="100"/>
+    <circle cx="380" cy="340" r="90"/>
+    <circle cx="460" cy="260" r="80"/>
+    <circle cx="540" cy="330" r="100"/>
+  </g>
+  <rect x="380" y="380" width="40" height="140" fill="#6b705c" rx="8"/>
+  <text x="400" y="520" font-family="Segoe UI, Roboto, Arial" font-size="28" text-anchor="middle" fill="#495057">Image coming soon</text>
+  <text x="400" y="90" font-family="Segoe UI, Roboto, Arial" font-size="36" text-anchor="middle" fill="#6c757d">Online Florist</text>
+</svg>

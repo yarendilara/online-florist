@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Online Florist • Demo</title>
+  <meta name="description" content="Online Florist – static demo page for GitHub Pages" />
+  <style>
+    :root {
+      --primary: #2e7d32; /* green */
+      --primary-hover: #1b5e20;
+      --accent: #e91e63; /* pink */
+      --text: #111;
+      --bg: #fff;
+      --muted: #666;
+      --card: #fff;
+      --radius: 12px;
+      --shadow: 0 6px 20px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Segoe UI, Roboto, Arial, sans-serif; color: var(--text); background: var(--bg); }
+    nav { background: var(--text); color: #fff; }
+    .nav-container { max-width: 1100px; margin: 0 auto; padding: 14px 20px; display:flex; align-items:center; justify-content:space-between; }
+    .logo { font-weight: 700; font-size: 20px; letter-spacing: 0.3px; }
+    .pill { display:inline-block; padding:8px 14px; border-radius: 999px; background: var(--primary); color:#fff; text-decoration:none; }
+    .pill:hover { background: var(--primary-hover); }
+    header { max-width:1100px; margin: 28px auto; padding: 24px; border-radius: var(--radius); box-shadow: var(--shadow); background: linear-gradient(135deg, rgba(46,125,50,0.08), rgba(233,30,99,0.08)); }
+    header h1 { margin: 0 0 8px; font-size: 32px; }
+    header p { margin: 0; color: var(--muted); }
+    .container { max-width:1100px; margin: 0 auto; padding: 24px; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 18px; }
+    .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow:hidden; display:flex; flex-direction:column; }
+    .card img { width:100%; height:180px; object-fit:cover; background:#eee; }
+    .card .info { padding: 14px; display:flex; flex-direction:column; gap:8px; }
+    .name { font-weight:600; }
+    .category { font-size: 13px; color: var(--muted); }
+    .price { font-weight:700; color: var(--primary); }
+    .actions { margin-top:auto; display:flex; gap:8px; }
+    .btn { padding:10px 12px; border-radius:8px; border:none; cursor:pointer; background: var(--primary); color:#fff; }
+    .btn.alt { background: var(--accent); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    footer { text-align:center; color:#888; padding:28px; }
+    .note { margin-top:16px; font-size:14px; color:#555; }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-container">
+      <div class="logo">🌸 Online Florist</div>
+      <a class="pill" href="https://github.com/" target="_blank" rel="noopener">View Source</a>
+    </div>
+  </nav>
+
+  <header>
+    <h1>Beautiful Flowers, Delivered</h1>
+    <p>This is a static demo for GitHub Pages. The full app (cart, login, orders, admin) runs locally on Node.js.</p>
+    <div class="note">To run the full site locally: npm install → npm run seed → npm start → open http://localhost:3000</div>
+  </header>
+
+  <div class="container">
+    <h2 style="margin:0 0 12px">Featured Products</h2>
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <footer>
+    © 2025 Online Florist • Static preview • PLN prices
+  </footer>
+
+  <script>
+    const products = [
+      { name: 'Red Rose Bouquet', category: 'Roses', price: 29.99, image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1080&auto=format&fit=crop' },
+      { name: 'Pink Rose Romance', category: 'Roses', price: 34.99, image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1080&auto=format&fit=crop' },
+      { name: 'White Lily Arrangement', category: 'Lilies', price: 34.99, image: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?q=80&w=1080&auto=format&fit=crop' },
+      { name: 'Tulip Spring Mix', category: 'Tulips', price: 24.99, image: 'https://images.unsplash.com/photo-1496065187959-7b264e2f4b01?q=80&w=1080&auto=format&fit=crop' },
+      { name: 'Sunflower Happiness Box', category: 'Sunflowers', price: 19.99, image: 'https://images.unsplash.com/photo-1508919801845-fc2ae1bc1d1d?q=80&w=1080&auto=format&fit=crop' },
+      { name: 'Mixed Rainbow Bouquet', category: 'Bouquets', price: 39.99, image: 'https://images.unsplash.com/photo-1491009182931-73e04f1798f2?q=80&w=1080&auto=format&fit=crop' }
+    ];
+
+    function formatPLN(value){
+      return new Intl.NumberFormat('pl-PL', { style:'currency', currency:'PLN' }).format(value);
+    }
+
+    const grid = document.getElementById('grid');
+    grid.innerHTML = products.map(p => `
+      <div class="card">
+        <img src="${p.image}" alt="${p.name}" onerror="this.src='https://placehold.co/800x600?text=Flower'" />
+        <div class="info">
+          <div class="name">${p.name}</div>
+          <div class="category">${p.category}</div>
+          <div class="price">${formatPLN(p.price)}</div>
+          <div class="actions">
+            <button class="btn" onclick="alert('${p.name} added to cart!')">Add to Cart</button>
+            <button class="btn alt" onclick="alert('View details: ${p.name}')">View Details</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  </script>
+</body>
+</html>

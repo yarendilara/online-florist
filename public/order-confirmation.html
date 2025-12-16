@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmation - Online Florist</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav>
+    <div class="nav-container">
+      <div class="logo">🌸 FloraShop</div>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/shop">Shop</a></li>
+        <li><a href="/cart">Cart</a></li>
+      </ul>
+      <div class="auth-links">
+        <span id="userGreeting" class="text-muted"></span>
+        <a href="/login" id="loginLink">Login</a>
+        <a href="/register" id="registerLink">Register</a>
+        <button id="logoutBtn" style="display: none;">Logout</button>
+        <a href="/admin" id="adminLink" style="display: none; background-color: #27ae60;">Admin</a>
+        <a href="/orders" id="ordersLink" style="display: none;">My Orders</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="alert alert-success" style="text-align: center; margin-top: 2rem;">
+      <h2>✓ Order Confirmed!</h2>
+      <p>Your order has been placed successfully. Thank you for your purchase!</p>
+    </div>
+
+    <div class="card" style="max-width: 600px; margin: 2rem auto;">
+      <div class="card-body">
+        <div class="grid grid-2">
+          <div>
+            <h3>Order ID</h3>
+            <p id="orderId" style="font-size: 1.2rem; font-weight: bold;"></p>
+          </div>
+          <div>
+            <h3>Status</h3>
+            <p id="orderStatus" style="color: var(--warning-color); font-weight: bold;"></p>
+          </div>
+        </div>
+
+        <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #eee;">
+
+        <h3>Delivery Information</h3>
+        <div id="orderDetails"></div>
+
+        <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #eee;">
+
+        <h3>Items</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Quantity</th>
+              <th>Price</th>
+            </tr>
+          </thead>
+          <tbody id="orderItems"></tbody>
+        </table>
+
+        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 2px solid #eee; text-align: right;">
+          <h3>Total: <span id="orderTotal">$0.00</span></h3>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align: center; margin: 2rem 0;">
+      <a href="/" class="btn">Continue Shopping</a>
+      <a href="/orders" class="btn btn-secondary">View My Orders</a>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2024 FloraShop. All rights reserved. | Online Flower Shop</p>
+  </footer>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/order-confirmation.js"></script>
+</body>
+</html>

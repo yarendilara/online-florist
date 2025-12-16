@@ -1,0 +1,110 @@
+/* Admin panel styles */
+
+.admin-nav {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 1rem;
+}
+
+.admin-nav a {
+  padding: 0.8rem 1.5rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--dark-color);
+  font-weight: 500;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.admin-nav a:hover,
+.admin-nav a.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+.admin-container {
+  display: none;
+}
+
+.admin-container.active {
+  display: block;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--light-color);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.form-section {
+  background: var(--light-color);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.form-section h3 {
+  margin-bottom: 1rem;
+  color: var(--dark-color);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-buttons button {
+  flex: 1;
+  padding: 0.5rem;
+  font-size: 0.85rem;
+}
+
+table {
+  margin-top: 1rem;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
