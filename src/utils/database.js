@@ -14,7 +14,12 @@ class Database {
 
   connect() {
     return new Promise((resolve, reject) => {
-      const dbPath = process.env.DB_PATH || './database/florist.db';
+      const dbPath =
+  process.env.DB_PATH ||
+  (process.env.NODE_ENV === 'production'
+    ? path.join('/tmp', 'florist.db')
+    : path.join(__dirname, '../../database/florist.db'));
+
       this.db = new sqlite3.Database(dbPath, (err) => {
         if (err) {
           console.error('Database connection failed:', err);
