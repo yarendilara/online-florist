@@ -129,12 +129,7 @@ async function ensureAdminUser() {
   try {
     const existingAdmin = await User.findByEmail('admin@florist.com');
     if (!existingAdmin) {
-      await User.create({
-        username: 'admin',
-        email: 'admin@florist.com',
-        password: 'admin123',
-        is_admin: 1
-      });
+      await User.create('admin', 'admin@florist.com', 'admin123', 1);
       console.log('Default admin user created');
     }
   } catch (err) {
