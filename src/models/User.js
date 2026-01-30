@@ -12,7 +12,11 @@ class User {
   }
 
   static async findById(id) {
-    return await database.get('SELECT id, username, email, is_admin FROM users WHERE id = ?', [id]);
+    const user = await database.get('SELECT id, username, email, is_admin FROM users WHERE id = ?', [id]);
+    if (user) {
+      user.is_admin = user.is_admin ? true : false;
+    }
+    return user;
   }
 
   static async findByEmail(email) {
@@ -30,7 +34,12 @@ class User {
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) return null;
     
-    return { id: user.id, username: user.username, email: user.email, is_admin: user.is_admin };
+    return { 
+      id: user.id, 
+      username: user.username, 
+      email: user.email, 
+      is_admin: user.is_admin ? true : false 
+    };
   }
 
   static async getAllAdmins() {
