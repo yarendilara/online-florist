@@ -2,8 +2,8 @@ const sqlite3 = require('sqlite3').verbose();
 const { Pool } = require('pg');
 const path = require('path');
 
-// Determine which database to use
-const USE_POSTGRES = process.env.USE_POSTGRES === 'true' || process.env.NODE_ENV === 'production';
+// Determine which database to use - always use PostgreSQL if DATABASE_URL exists
+const USE_POSTGRES = !!process.env.DATABASE_URL;
 
 // Singleton pattern for database connection
 class Database {
