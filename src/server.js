@@ -64,6 +64,25 @@ app.use('/api/categories', require('./routes/categories'));
 app.use('/api/orders', require('./routes/orders'));
 app.use('/api/admin', require('./routes/admin'));
 
+// Health check endpoint (DB status)
+app.get('/api/health', async (req, res) => {
+  try {
+    const productsCount = await database.get('SELECT COUNT(*) as count FROM products');
+    const categoriesCount = await database.get('SELECT COUNT(*) as count FROM categories');
+
+    return res.json({
+      ok: true,
+      db: database.isPostgres ? 'postgres' : 'sqlite',
+      hasDatabaseUrl: !!process.env.DATABASE_URL,
+      productsCount: parseInt(productsCount?.count || 0, 10),
+      categoriesCount: parseInt(categoriesCount?.count || 0, 10)
+    });
+  } catch (error) {
+    console.error('Health check error:', error);
+    return res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
 // Serve HTML pages
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
