@@ -1,0 +1,18 @@
+{
+  "buildCommand": "npm install",
+  "devCommand": "npm start",
+  "installCommand": "npm install",
+  "framework": "express",
+  "functions": {
+    "src/server.js": {
+      "memory": 1024,
+      "maxDuration": 300
+    }
+  },
+  "env": [
+    "DATABASE_URL",
+    "SESSION_SECRET",
+    "NODE_ENV"
+  ],
+  "regions": ["iad1"]
+}

@@ -1,16 +1,14 @@
-const sqlite3 = require('sqlite3').verbose();
 const { Pool } = require('pg');
-const path = require('path');
+require('dotenv').config();
 
 // Global connection pool - reuse across serverless invocations
 let globalPool = null;
-let globalDb = null;
 
-const USE_POSTGRES = !!process.env.DATABASE_URL;
+const DATABASE_URL = process.env.DATABASE_URL;
 
 class Database {
   constructor() {
-    this.isPostgres = USE_POSTGRES;
+    this.isPostgres = !!DATABASE_URL;
   }
 
   async connect() {
