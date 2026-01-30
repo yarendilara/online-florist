@@ -17,7 +17,7 @@ class Database {
       const dbPath =
   process.env.DB_PATH ||
   (process.env.NODE_ENV === 'production'
-    ? path.join('/tmp', 'florist.db')
+    ? path.join(__dirname, '../../database/florist.db')
     : path.join(__dirname, '../../database/florist.db'));
 
       this.db = new sqlite3.Database(dbPath, (err) => {
@@ -26,6 +26,8 @@ class Database {
           reject(err);
         } else {
           console.log('Connected to SQLite database:', dbPath);
+          // Enable WAL mode for better concurrency
+          this.db.run('PRAGMA journal_mode = WAL');
           this.initializeTables();
           resolve(this.db);
         }

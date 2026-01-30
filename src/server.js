@@ -4,6 +4,7 @@ const path = require('path');
 const database = require('./utils/database');
 const { checkAuth } = require('./middleware/auth');
 const User = require('./models/User');
+const { seedDatabase } = require('../seed');
 
 
 require('dotenv').config();
@@ -142,9 +143,10 @@ async function ensureAdminUser() {
 async function startServer() {
   try {
     await database.connect();
-    // Wait for tables to be created and then create admin user
+    // Wait for tables to be created and then seed database
     await new Promise(resolve => setTimeout(resolve, 1000));
     await ensureAdminUser();
+    await seedDatabase();
     
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);

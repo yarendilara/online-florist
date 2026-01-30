@@ -7,7 +7,6 @@ const database = require('./src/utils/database');
 
 async function seedDatabase() {
   try {
-    await database.connect();
     console.log('Database connected. Starting seed...');
 
     // Create categories
@@ -24,7 +23,7 @@ async function seedDatabase() {
     const sunflowers = await getOrCreateCategory('Sunflowers', 'Bright and cheerful sunflowers');
     const bouquets = await getOrCreateCategory('Bouquets', 'Mixed flower arrangements');
 
-    console.log('Categories created');
+    console.log('✓ Categories created');
 
     // Create sample products
     console.log('Creating products...');
@@ -106,32 +105,45 @@ async function seedDatabase() {
       '/images/garden-mix.jpg'
     );
 
-    console.log('Products created');
+    console.log('✓ Products created');
 
     // Create admin user
     console.log('Creating admin user...');
     try {
       await User.create('admin', 'admin@florist.com', 'admin123', true);
-      console.log('Admin user created - Email: admin@florist.com, Password: admin123');
+      console.log('✓ Admin user created - Email: admin@florist.com, Password: admin123');
     } catch (error) {
-      console.log('Admin user may already exist');
+      console.log('✓ Admin user may already exist');
     }
 
     // Create regular user
     console.log('Creating test customer...');
     try {
       await User.create('customer', 'customer@florist.com', 'customer123', false);
-      console.log('Customer user created - Email: customer@florist.com, Password: customer123');
+      console.log('✓ Customer user created - Email: customer@florist.com, Password: customer123');
     } catch (error) {
-      console.log('Customer user may already exist');
+      console.log('✓ Customer user may already exist');
     }
 
-    console.log('Database seeding completed successfully!');
-    await database.close();
+    console.log('✓ Database seeding completed successfully!');
   } catch (error) {
     console.error('Error seeding database:', error);
-    process.exit(1);
+    throw error;
   }
 }
 
-seedDatabase();
+// Run seed only when executed directly
+if (require.main === module) {
+  (async () => {
+    try {
+      await database.connect();
+      await seedDatabase();
+      await database.close();
+    } catch (error) {
+      console.error('Seed failed:', error);
+      process.exit(1);
+    }
+  })();
+}
+
+module.exports = { seedDatabase };
