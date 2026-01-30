@@ -1,5 +1,9 @@
 const sqlite3 = require('sqlite3').verbose();
+const { Pool } = require('pg');
 const path = require('path');
+
+// Determine which database to use
+const USE_POSTGRES = process.env.USE_POSTGRES === 'true' || process.env.NODE_ENV === 'production';
 
 // Singleton pattern for database connection
 class Database {
@@ -9,24 +13,53 @@ class Database {
     }
     
     this.db = null;
+    this.pool = null;
+    this.isPostgres = USE_POSTGRES;
     Database.instance = this;
   }
 
-  connect() {
+  async connect() {
+    if (this.isPostgres) {
+      return this.connectPostgres();
+    } else {
+      return this.connectSQLite();
+    }
+  }
+
+  connectPostgres() {
     return new Promise((resolve, reject) => {
-      const dbPath =
-  process.env.DB_PATH ||
-  (process.env.NODE_ENV === 'production'
-    ? path.join(__dirname, '../../database/florist.db')
-    : path.join(__dirname, '../../database/florist.db'));
+      try {
+        this.pool = new Pool({
+          connectionString: process.env.DATABASE_URL,
+          ssl: { rejectUnauthorized: false }
+        });
+
+        this.pool.connect((err, client, release) => {
+          if (err) {
+            console.error('PostgreSQL connection failed:', err);
+            reject(err);
+          } else {
+            console.log('✓ Connected to PostgreSQL (Supabase)');
+            release();
+            this.initializeTables().then(resolve).catch(reject);
+          }
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  connectSQLite() {
+    return new Promise((resolve, reject) => {
+      const dbPath = path.join(__dirname, '../../database/florist.db');
 
       this.db = new sqlite3.Database(dbPath, (err) => {
         if (err) {
-          console.error('Database connection failed:', err);
+          console.error('SQLite connection failed:', err);
           reject(err);
         } else {
-          console.log('Connected to SQLite database:', dbPath);
-          // Enable WAL mode for better concurrency
+          console.log('✓ Connected to SQLite database:', dbPath);
           this.db.run('PRAGMA journal_mode = WAL');
           this.initializeTables();
           resolve(this.db);
@@ -35,133 +68,154 @@ class Database {
     });
   }
 
-  initializeTables() {
+  async initializeTables() {
+    const timestamp = this.isPostgres ? 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP' : 'DATETIME DEFAULT CURRENT_TIMESTAMP';
+
     // Create users table
-    this.db.run(`
+    await this.run(`
       CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id ${this.isPostgres ? 'SERIAL PRIMARY KEY' : 'INTEGER PRIMARY KEY AUTOINCREMENT'},
         username TEXT UNIQUE NOT NULL,
         email TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
-        is_admin BOOLEAN DEFAULT 0,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        is_admin BOOLEAN DEFAULT ${this.isPostgres ? 'false' : '0'},
+        created_at ${timestamp},
+        updated_at ${timestamp}
       )
     `);
 
     // Create categories table
-    this.db.run(`
+    await this.run(`
       CREATE TABLE IF NOT EXISTS categories (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id ${this.isPostgres ? 'SERIAL PRIMARY KEY' : 'INTEGER PRIMARY KEY AUTOINCREMENT'},
         name TEXT UNIQUE NOT NULL,
         description TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        created_at ${timestamp},
+        updated_at ${timestamp}
       )
     `);
 
     // Create products table
-    this.db.run(`
+    await this.run(`
       CREATE TABLE IF NOT EXISTS products (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id ${this.isPostgres ? 'SERIAL PRIMARY KEY' : 'INTEGER PRIMARY KEY AUTOINCREMENT'},
         name TEXT NOT NULL,
         description TEXT,
-        price REAL NOT NULL,
+        price ${this.isPostgres ? 'DECIMAL(10,2)' : 'REAL'} NOT NULL,
         stock_quantity INTEGER NOT NULL DEFAULT 0,
         category_id INTEGER,
         image_path TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(category_id) REFERENCES categories(id)
+        created_at ${timestamp},
+        updated_at ${timestamp}${this.isPostgres ? ',' : ''}
+        ${this.isPostgres ? 'CONSTRAINT fk_category FOREIGN KEY(category_id) REFERENCES categories(id)' : 'FOREIGN KEY(category_id) REFERENCES categories(id)'}
       )
     `);
 
     // Create orders table
-    this.db.run(`
+    await this.run(`
       CREATE TABLE IF NOT EXISTS orders (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id ${this.isPostgres ? 'SERIAL PRIMARY KEY' : 'INTEGER PRIMARY KEY AUTOINCREMENT'},
         user_id INTEGER NOT NULL,
-        total_price REAL NOT NULL,
+        total_price ${this.isPostgres ? 'DECIMAL(10,2)' : 'REAL'} NOT NULL,
         status TEXT DEFAULT 'Pending',
         customer_name TEXT NOT NULL,
         address TEXT NOT NULL,
         phone_number TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(user_id) REFERENCES users(id)
+        created_at ${timestamp},
+        updated_at ${timestamp}${this.isPostgres ? ',' : ''}
+        ${this.isPostgres ? 'CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(id)' : 'FOREIGN KEY(user_id) REFERENCES users(id)'}
       )
     `);
 
     // Create order items table
-    this.db.run(`
+    await this.run(`
       CREATE TABLE IF NOT EXISTS order_items (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id ${this.isPostgres ? 'SERIAL PRIMARY KEY' : 'INTEGER PRIMARY KEY AUTOINCREMENT'},
         order_id INTEGER NOT NULL,
         product_id INTEGER NOT NULL,
         quantity INTEGER NOT NULL,
-        price REAL NOT NULL,
-        FOREIGN KEY(order_id) REFERENCES orders(id),
-        FOREIGN KEY(product_id) REFERENCES products(id)
+        price ${this.isPostgres ? 'DECIMAL(10,2)' : 'REAL'} NOT NULL${this.isPostgres ? ',' : ''}
+        ${this.isPostgres ? 'CONSTRAINT fk_order FOREIGN KEY(order_id) REFERENCES orders(id),' : 'FOREIGN KEY(order_id) REFERENCES orders(id),'}
+        ${this.isPostgres ? 'CONSTRAINT fk_product FOREIGN KEY(product_id) REFERENCES products(id)' : 'FOREIGN KEY(product_id) REFERENCES products(id)'}
       )
     `);
 
-    // Create sessions table for session store
-    this.db.run(`
+    // Create sessions table
+    await this.run(`
       CREATE TABLE IF NOT EXISTS sessions (
         id TEXT PRIMARY KEY,
         data TEXT NOT NULL,
-        expires_at DATETIME NOT NULL
+        expires_at ${timestamp}
       )
     `);
   }
 
   run(sql, params = []) {
-    return new Promise((resolve, reject) => {
-      this.db.run(sql, params, function(err) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve({ id: this.lastID, changes: this.changes });
-        }
+    if (this.isPostgres) {
+      return this.pool.query(sql, params).then(result => ({
+        id: result.rows[0]?.id,
+        changes: result.rowCount
+      })).catch(err => {
+        // Ignore table already exists errors
+        if (err.code === '42P07') return { id: null, changes: 0 };
+        throw err;
       });
-    });
+    } else {
+      return new Promise((resolve, reject) => {
+        this.db.run(sql, params, function(err) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve({ id: this.lastID, changes: this.changes });
+          }
+        });
+      });
+    }
   }
 
   get(sql, params = []) {
-    return new Promise((resolve, reject) => {
-      this.db.get(sql, params, (err, row) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(row);
-        }
+    if (this.isPostgres) {
+      return this.pool.query(sql, params).then(result => result.rows[0]);
+    } else {
+      return new Promise((resolve, reject) => {
+        this.db.get(sql, params, (err, row) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(row);
+          }
+        });
       });
-    });
+    }
   }
 
   all(sql, params = []) {
-    return new Promise((resolve, reject) => {
-      this.db.all(sql, params, (err, rows) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(rows);
-        }
+    if (this.isPostgres) {
+      return this.pool.query(sql, params).then(result => result.rows);
+    } else {
+      return new Promise((resolve, reject) => {
+        this.db.all(sql, params, (err, rows) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows);
+          }
+        });
       });
-    });
+    }
   }
 
-  close() {
-    return new Promise((resolve, reject) => {
-      if (this.db) {
+  async close() {
+    if (this.isPostgres && this.pool) {
+      await this.pool.end();
+    } else if (this.db) {
+      return new Promise((resolve, reject) => {
         this.db.close((err) => {
           if (err) reject(err);
           else resolve();
         });
-      } else {
-        resolve();
-      }
-    });
+      });
+    }
   }
 }
 
