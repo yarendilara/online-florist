@@ -129,8 +129,10 @@ async function ensureAdminUser() {
   try {
     const existingAdmin = await User.findByEmail('admin@florist.com');
     if (!existingAdmin) {
-      await User.create('admin', 'admin@florist.com', 'admin123', 1);
-      console.log('Default admin user created');
+      await User.create('admin', 'admin@florist.com', 'admin123', true);
+      console.log('✓ Default admin user created: admin@florist.com / admin123');
+    } else {
+      console.log('✓ Admin user already exists');
     }
   } catch (err) {
     console.error('Admin creation failed:', err);
@@ -140,7 +142,10 @@ async function ensureAdminUser() {
 async function startServer() {
   try {
     await database.connect();
-    setTimeout(ensureAdminUser, 500);
+    // Wait for tables to be created and then create admin user
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    await ensureAdminUser();
+    
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });
