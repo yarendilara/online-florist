@@ -16,17 +16,37 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Session configuration
-app.use(session({
+// Session configuration with database store
+const sessionConfig = {
   secret: process.env.SESSION_SECRET || 'dev-secret-key',
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: { 
     maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-    secure: false, // Set to true in production with HTTPS
-    httpOnly: true
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: 'lax'
   }
-}));
+};
+
+// Use PostgreSQL session store in production
+if (process.env.USE_POSTGRES === 'true' || process.env.NODE_ENV === 'production') {
+  const pgSession = require('connect-pg-simple')(session);
+  const { Pool } = require('pg');
+  
+  const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+  });
+
+  sessionConfig.store = new pgSession({
+    pool: pool,
+    tableName: 'session',
+    createTableIfMissing: true
+  });
+}
+
+app.use(session(sessionConfig));
 
 // Auth middleware
 app.use(checkAuth);
