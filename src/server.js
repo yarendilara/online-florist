@@ -143,10 +143,19 @@ async function ensureAdminUser() {
 async function startServer() {
   try {
     await database.connect();
-    // Wait for tables to be created and then seed database
+    // Wait for tables to be created
     await new Promise(resolve => setTimeout(resolve, 1000));
     await ensureAdminUser();
-    await seedDatabase();
+    
+    // Only seed if database is empty (check if products exist)
+    const Product = require('./models/Product');
+    const existingProducts = await Product.getAll();
+    if (!existingProducts || existingProducts.length === 0) {
+      console.log('Database is empty, running seed...');
+      await seedDatabase();
+    } else {
+      console.log('✓ Database already seeded, skipping...');
+    }
     
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
