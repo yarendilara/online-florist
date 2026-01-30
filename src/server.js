@@ -38,21 +38,18 @@ const sessionConfig = {
   }
 };
 
-// Use PostgreSQL session store in production
-if (process.env.USE_POSTGRES === 'true' || process.env.NODE_ENV === 'production') {
+// Use PostgreSQL session store when DATABASE_URL exists
+if (process.env.DATABASE_URL) {
   const pgSession = require('connect-pg-simple')(session);
-  const { Pool } = require('pg');
   
-  const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
-  });
-
   sessionConfig.store = new pgSession({
-    pool: pool,
+    conString: process.env.DATABASE_URL,
     tableName: 'session',
     createTableIfMissing: true
   });
+  console.log('✓ Using PostgreSQL session store');
+} else {
+  console.log('⚠️ Using memory session store (development only)');
 }
 
 app.use(session(sessionConfig));
