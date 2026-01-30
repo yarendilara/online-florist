@@ -1,6 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
+const cors = require('cors');
 const database = require('./utils/database');
 const { checkAuth } = require('./middleware/auth');
 const User = require('./models/User');
@@ -10,6 +11,14 @@ const { seedDatabase } = require('../seed');
 require('dotenv').config();
 
 const app = express();
+
+// CORS configuration
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://online-florist-five.vercel.app', 'https://online-florist-yarendilara.vercel.app']
+    : 'http://localhost:3000',
+  credentials: true
+}));
 
 // Middleware
 app.use(express.json());
@@ -162,26 +171,39 @@ async function ensureAdminUser() {
 
 async function startServer() {
   try {
+    console.log(`🚀 Starting server in ${process.env.NODE_ENV || 'development'} mode...`);
+    console.log(`📦 Using ${process.env.USE_POSTGRES === 'true' ? 'PostgreSQL (Supabase)' : 'SQLite'}`);
+    
     await database.connect();
     // Wait for tables to be created
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 2000));
     await ensureAdminUser();
     
     // Only seed if database is empty (check if products exist)
     const Product = require('./models/Product');
-    const existingProducts = await Product.getAll();
-    if (!existingProducts || existingProducts.length === 0) {
-      console.log('Database is empty, running seed...');
-      await seedDatabase();
-    } else {
-      console.log('✓ Database already seeded, skipping...');
+    try {
+      const existingProducts = await Product.getAll();
+      if (!existingProducts || existingProducts.length === 0) {
+        console.log('📝 Database is empty, running seed...');
+        await seedDatabase();
+      } else {
+        console.log(`✓ Database already has ${existingProducts.length} products, skipping seed...`);
+      }
+    } catch (seedErr) {
+      console.log('⚠️ Seed check failed, attempting to seed anyway:', seedErr.message);
+      try {
+        await seedDatabase();
+      } catch (err) {
+        console.log('⚠️ Seeding failed, continuing without seed data');
+      }
     }
     
     app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
+      console.log(`✅ Server running on http://localhost:${PORT}`);
+      console.log(`🌸 Admin: admin@florist.com / admin123`);
     });
   } catch (error) {
-    console.error('Failed to start server:', error);
+    console.error('❌ Failed to start server:', error);
     process.exit(1);
   }
 }

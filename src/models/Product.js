@@ -11,12 +11,16 @@ class Product {
   }
 
   static async findById(id) {
-    return await database.get(
+    const product = await database.get(
       `SELECT p.*, c.name as category_name FROM products p 
        LEFT JOIN categories c ON p.category_id = c.id 
        WHERE p.id = ?`,
       [id]
     );
+    if (product) {
+      product.price = parseFloat(product.price);
+    }
+    return product;
   }
 
   static async getAll(categoryId = null) {
@@ -30,16 +34,18 @@ class Product {
     }
     
     query += ' ORDER BY p.created_at DESC';
-    return await database.all(query, params);
+    const products = await database.all(query, params);
+    return products.map(p => ({ ...p, price: parseFloat(p.price) }));
   }
 
   static async getFeatured(limit = 6) {
-    return await database.all(
+    const products = await database.all(
       `SELECT p.*, c.name as category_name FROM products p 
        LEFT JOIN categories c ON p.category_id = c.id 
        ORDER BY p.created_at DESC LIMIT ?`,
       [limit]
     );
+    return products.map(p => ({ ...p, price: parseFloat(p.price) }));
   }
 
   static async search(keyword) {

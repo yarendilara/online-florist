@@ -152,8 +152,18 @@ class Database {
 
   run(sql, params = []) {
     if (this.isPostgres) {
-      return this.pool.query(sql, params).then(result => ({
-        id: result.rows[0]?.id,
+      // Convert ? placeholders to $1, $2, etc. for PostgreSQL
+      let querySQL = sql;
+      let paramIndex = 1;
+      querySQL = querySQL.replace(/\?/g, () => `$${paramIndex++}`);
+      
+      // For INSERT statements, add RETURNING id if not already present
+      if (querySQL.trim().toUpperCase().startsWith('INSERT') && !querySQL.toUpperCase().includes('RETURNING')) {
+        querySQL = querySQL.trim().replace(/;?\s*$/, '') + ' RETURNING id';
+      }
+      
+      return this.pool.query(querySQL, params).then(result => ({
+        id: result.rows[0]?.id || null,
         changes: result.rowCount
       })).catch(err => {
         // Ignore table already exists errors
@@ -175,7 +185,11 @@ class Database {
 
   get(sql, params = []) {
     if (this.isPostgres) {
-      return this.pool.query(sql, params).then(result => result.rows[0]);
+      // Convert ? placeholders to $1, $2, etc.
+      let querySQL = sql;
+      let paramIndex = 1;
+      querySQL = querySQL.replace(/\?/g, () => `$${paramIndex++}`);
+      return this.pool.query(querySQL, params).then(result => result.rows[0]);
     } else {
       return new Promise((resolve, reject) => {
         this.db.get(sql, params, (err, row) => {
@@ -191,7 +205,11 @@ class Database {
 
   all(sql, params = []) {
     if (this.isPostgres) {
-      return this.pool.query(sql, params).then(result => result.rows);
+      // Convert ? placeholders to $1, $2, etc.
+      let querySQL = sql;
+      let paramIndex = 1;
+      querySQL = querySQL.replace(/\?/g, () => `$${paramIndex++}`);
+      return this.pool.query(querySQL, params).then(result => result.rows);
     } else {
       return new Promise((resolve, reject) => {
         this.db.all(sql, params, (err, rows) => {
