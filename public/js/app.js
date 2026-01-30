@@ -35,6 +35,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Logo click handler - go to home or admin based on role
+  const logo = document.querySelector('.logo');
+  if (logo) {
+    logo.style.cursor = 'pointer';
+    logo.addEventListener('click', async () => {
+      try {
+        const response = await fetch('/api/auth/profile');
+        if (response.ok) {
+          const user = await response.json();
+          if (user.is_admin) {
+            window.location.href = '/admin';
+          } else {
+            window.location.href = '/';
+          }
+        } else {
+          window.location.href = '/';
+        }
+      } catch (error) {
+        window.location.href = '/';
+      }
+    });
+  }
+
   updateAuthUI();
 });
 
