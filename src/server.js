@@ -1,5 +1,7 @@
 const express = require('express');
 const session = require('express-session');
+const PgSession = require('connect-pg-simple')(session);
+const { Pool } = require('pg');
 const path = require('path');
 const database = require('./utils/database');
 const { checkAuth } = require('./middleware/auth');
@@ -9,6 +11,8 @@ const User = require('./models/User');
 require('dotenv').config();
 
 const app = express();
+const DATABASE_URL = process.env.DATABASE_URL;
+const isProduction = process.env.NODE_ENV === 'production';
 
 // Middleware
 app.use(express.json());
@@ -16,16 +20,33 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
 
 // Session configuration
-app.use(session({
+if (isProduction) {
+  app.set('trust proxy', 1);
+}
+
+const sessionOptions = {
   secret: process.env.SESSION_SECRET || 'dev-secret-key',
   resave: false,
-  saveUninitialized: true,
-  cookie: { 
+  saveUninitialized: false,
+  cookie: {
     maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-    secure: false, // Set to true in production with HTTPS
-    httpOnly: true
+    secure: isProduction,
+    httpOnly: true,
+    sameSite: 'lax'
   }
-}));
+};
+
+if (DATABASE_URL) {
+  sessionOptions.store = new PgSession({
+    pool: new Pool({
+      connectionString: DATABASE_URL,
+      ssl: { rejectUnauthorized: false }
+    }),
+    createTableIfMissing: true
+  });
+}
+
+app.use(session(sessionOptions));
 
 // Auth middleware
 app.use(checkAuth);
