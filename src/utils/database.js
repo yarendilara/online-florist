@@ -1,8 +1,11 @@
 const { Pool } = require('pg');
+const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
 require('dotenv').config();
 
 // Global connection pool - reuse across serverless invocations
 let globalPool = null;
+let globalDb = null;
 
 const DATABASE_URL = process.env.DATABASE_URL;
 
@@ -86,8 +89,8 @@ class Database {
         category_id INTEGER,
         image_path TEXT,
         created_at ${timestamp},
-        updated_at ${timestamp}${this.isPostgres ? ',' : ''}
-        ${this.isPostgres ? 'CONSTRAINT fk_category FOREIGN KEY(category_id) REFERENCES categories(id)' : 'FOREIGN KEY(category_id) REFERENCES categories(id)'}
+        updated_at ${timestamp}
+        ${this.isPostgres ? ', CONSTRAINT fk_category FOREIGN KEY(category_id) REFERENCES categories(id)' : ''}
       )`,
       
       `CREATE TABLE IF NOT EXISTS orders (
@@ -99,8 +102,8 @@ class Database {
         address TEXT NOT NULL,
         phone_number TEXT NOT NULL,
         created_at ${timestamp},
-        updated_at ${timestamp}${this.isPostgres ? ',' : ''}
-        ${this.isPostgres ? 'CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(id)' : 'FOREIGN KEY(user_id) REFERENCES users(id)'}
+        updated_at ${timestamp}
+        ${this.isPostgres ? ', CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(id)' : ''}
       )`,
       
       `CREATE TABLE IF NOT EXISTS order_items (
@@ -108,9 +111,8 @@ class Database {
         order_id INTEGER NOT NULL,
         product_id INTEGER NOT NULL,
         quantity INTEGER NOT NULL,
-        price ${this.isPostgres ? 'DECIMAL(10,2)' : 'REAL'} NOT NULL${this.isPostgres ? ',' : ''}
-        ${this.isPostgres ? 'CONSTRAINT fk_order FOREIGN KEY(order_id) REFERENCES orders(id),' : 'FOREIGN KEY(order_id) REFERENCES orders(id),'}
-        ${this.isPostgres ? 'CONSTRAINT fk_product FOREIGN KEY(product_id) REFERENCES products(id)' : 'FOREIGN KEY(product_id) REFERENCES products(id)'}
+        price ${this.isPostgres ? 'DECIMAL(10,2)' : 'REAL'} NOT NULL
+        ${this.isPostgres ? ', CONSTRAINT fk_order FOREIGN KEY(order_id) REFERENCES orders(id), CONSTRAINT fk_product FOREIGN KEY(product_id) REFERENCES products(id)' : ''}
       )`
     ];
 

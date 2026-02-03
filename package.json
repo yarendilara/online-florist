@@ -5,12 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "node src/server.js",
-    "seed": "node seed.js",
-    "setup-db": "node setup-db.js",
-    "reset-admin": "node reset-admin-password.js",
-    "test": "jest --runInBand",
-    "test:watch": "jest --watch"
+    "dev": "node src/server.js"
   },
   "keywords": [
     "florist",
@@ -30,9 +25,5 @@
     "multer": "^1.4.5-lts.1",
     "pg": "^8.18.0",
     "sqlite3": "^5.1.6"
-  },
-  "devDependencies": {
-    "jest": "^29.3.1",
-    "supertest": "^6.3.3"
   }
 }

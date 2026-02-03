@@ -23,8 +23,9 @@ A full-stack e-commerce platform for an online flower shop with customer shoppin
 
 - **Frontend**: HTML5, CSS3, Vanilla JavaScript
 - **Backend**: Node.js with Express
-- **Database**: SQLite3
+- **Database**: PostgreSQL (via Vercel Postgres)
 - **Authentication**: Session-based with bcrypt password hashing
+- **Deployment**: Vercel
 
 ## Architecture
 
@@ -63,15 +64,8 @@ online-florist/
 │   ├── middleware/        # Express middleware
 │   ├── utils/             # Utility functions
 │   └── server.js          # Main server file
-├── database/              # Database files
-├── tests/                 # Test files
+├── database/              # Database configuration
 └── package.json
-```
-
-## Running Tests
-
-```
-npm test
 ```
 
 ## Security Features
@@ -82,11 +76,6 @@ npm test
 - Session-based authentication
 - CSRF protection
 
-## Default Admin Credentials
-
-Email: admin@florist.com
-Password: admin123
-
 ## Database
 
-The application uses SQLite. The database is automatically initialized on first run.
+The application uses PostgreSQL via Vercel Postgres. Environment variables are required for connection.

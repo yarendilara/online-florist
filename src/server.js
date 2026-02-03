@@ -140,7 +140,7 @@ async function ensureAdminUser() {
       console.log('✓ Default admin user created');
       console.log('  Email: admin@florist.com');
       console.log('  Password: admin123');
-      console.log('  (Production için şifreyi değiştir!)');
+      console.log('  (Change password in production!)');
     }
   } catch (err) {
     console.error('Admin creation failed:', err);
@@ -149,11 +149,11 @@ async function ensureAdminUser() {
 
 async function startServer() {
   try {
-    // Veritabanına bağlan ve tabloları oluştur
+    // Initialize database and create tables
     await database.connect();
-    console.log('✓ Database bağlantı havuzu oluşturuldu');
+    console.log('✓ Database connection initialized');
     
-    // Admin kullanıcı oluştur (eğer yoksa)
+    // Create admin user if it doesn't exist
     setTimeout(ensureAdminUser, 500);
     
     app.listen(PORT, () => {
