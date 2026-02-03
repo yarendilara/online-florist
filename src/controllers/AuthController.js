@@ -35,6 +35,9 @@ class AuthController {
       // Set session
       const user = await User.findById(userId);
       req.session.user = user;
+      await new Promise((resolve, reject) => {
+        req.session.save((err) => (err ? reject(err) : resolve()));
+      });
 
       return res.status(201).json({ message: 'Registration successful', user });
     } catch (error) {
@@ -58,6 +61,9 @@ class AuthController {
 
       // Set session
       req.session.user = user;
+      await new Promise((resolve, reject) => {
+        req.session.save((err) => (err ? reject(err) : resolve()));
+      });
       return res.json({ message: 'Login successful', user });
     } catch (error) {
       console.error('Login error:', error);
