@@ -1,7 +1,5 @@
 const Product = require('../models/Product');
 const Category = require('../models/Category');
-const fs = require('fs').promises;
-const path = require('path');
 
 class ProductController {
   static async getAll(req, res) {
@@ -88,9 +86,10 @@ class ProductController {
         return res.status(404).json({ error: 'Category not found' });
       }
 
-      // Handle image upload
+      // Handle image upload (store as data URL)
       if (req.file) {
-        imagePath = `/images/${req.file.filename}`;
+        const base64 = req.file.buffer.toString('base64');
+        imagePath = `data:${req.file.mimetype};base64,${base64}`;
       }
 
       const productId = await Product.create(name, description, price, stockQuantity, categoryId, imagePath);
@@ -124,7 +123,8 @@ class ProductController {
 
       let imagePath = product.image_path;
       if (req.file) {
-        imagePath = `/images/${req.file.filename}`;
+        const base64 = req.file.buffer.toString('base64');
+        imagePath = `data:${req.file.mimetype};base64,${base64}`;
       }
 
       await Product.update(id, name, description, price, stockQuantity, categoryId, imagePath);

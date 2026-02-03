@@ -3,19 +3,12 @@ const router = express.Router();
 const ProductController = require('../controllers/ProductController');
 const { requireAdmin } = require('../middleware/auth');
 const multer = require('multer');
-const path = require('path');
 
-// Configure multer for image uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../../public/images'));
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname);
-  }
+// Configure multer for in-memory image uploads (serverless safe)
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }
 });
-
-const upload = multer({ storage });
 
 // Public routes
 router.get('/', ProductController.getAll);
